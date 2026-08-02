@@ -1,13 +1,21 @@
-const CACHE = 'fsgt-v1';
+const CACHE = 'fsgt-v2';
 const FILES = [
   './index.html',
   './fiche_suivi_PE12.html',
   './fiche_suivi_PE20_N1.html',
   './fiche_suivi_PE40.html',
   './fiche_suivi_OWPA20.html',
+  './fiche_suivi_PA20.html',
   './fiche_suivi_PA40.html',
   './fiche_suivi_PA60.html',
   './fiche_suivi_GP.html',
+  './fiche_suivi_PE12_mobile.html',
+  './fiche_suivi_PE20_mobile.html',
+  './fiche_suivi_PE40_mobile.html',
+  './fiche_suivi_OWPA20_mobile.html',
+  './fiche_suivi_PA40_mobile.html',
+  './fiche_suivi_PA60_mobile.html',
+  './fiche_suivi_GP_mobile.html',
 ];
 
 self.addEventListener('install', e => {
