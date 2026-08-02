@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="FSGT Fiches">
+<meta name="theme-color" content="#0D3B6E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Fiches FSGT — Plongée</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --ocean: #0D3B6E;
+    --water: #1B6CA8;
+    --bg:    #E8E4DE;
+    --card:  #FFFFFF;
+    --text:  #1A2535;
+    --muted: #6A7A8A;
+    --line:  #D8E4EF;
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bot: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    padding-bottom: calc(16px + var(--safe-bot));
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--ocean);
+    padding: calc(16px + var(--safe-top)) 20px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.3);
+  }
+  .header-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--water);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .header-text h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px; font-weight: 700; color: white;
+  }
+  .header-text p { font-size: 11px; color: rgba(255,255,255,.65); margin-top: 1px; }
+
+  /* ── Barre de recherche ── */
+  .search-wrap {
+    padding: 12px 16px 8px;
+    position: sticky;
+    top: 76px;
+    z-index: 90;
+    background: var(--bg);
+  }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: white; border-radius: 12px;
+    padding: 10px 14px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.1);
+  }
+  .search-box input {
+    border: none; outline: none; width: 100%;
+    font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text);
+    background: transparent;
+  }
+  .search-box input::placeholder { color: #A0AABC; }
+  .search-icon { color: #A0AABC; font-size: 16px; flex-shrink: 0; }
+
+  /* ── Section plongeur ── */
+  .section {
+    margin: 16px 16px 0;
+  }
+  .section-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+
+  /* ── Plongeur card ── */
+  .plongeur-card {
+    background: white;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    overflow: hidden;
+  }
+  .plongeur-header {
+    display: flex;
+    align-items: center;
+    padding: 14px 16px;
+    cursor: pointer;
+    gap: 12px;
+    user-select: none;
+  }
+  .plongeur-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px; font-weight: 700;
+    color: white; flex-shrink: 0;
+    background: var(--ocean);
+  }
+  .plongeur-info { flex: 1; min-width: 0; }
+  .plongeur-nom {
+    font-weight: 600; font-size: 15px; color: var(--text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .plongeur-niveau {
+    font-size: 11px; color: var(--muted); margin-top: 1px;
+  }
+  .plongeur-chevron {
+    color: var(--muted); font-size: 18px; transition: transform .2s;
+    flex-shrink: 0;
+  }
+  .plongeur-card.open .plongeur-chevron { transform: rotate(90deg); }
+
+  /* ── Fiches d'un plongeur ── */
+  .fiches-list {
+    display: none;
+    border-top: 1px solid var(--line);
+    padding: 8px 12px 12px;
+    gap: 8px;
+    flex-direction: column;
+  }
+  .plongeur-card.open .fiches-list { display: flex; }
+
+  .fiche-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: none;
+    background: #F4F7FB;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    transition: background .15s, transform .1s;
+    -webkit-user-select: none;
+  }
+  .fiche-btn:active { background: #E0EAFF; transform: scale(.98); }
+
+  .fiche-badge {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 11px; font-weight: 700;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 7px;
+    white-space: nowrap;
+    min-width: 58px;
+    text-align: center;
+    line-height: 1.2;
+    flex-shrink: 0;
+  }
+  .fiche-info { flex: 1; }
+  .fiche-label {
+    font-size: 13px; font-weight: 600; color: var(--text); display: block;
+  }
+  .fiche-desc {
+    font-size: 10.5px; color: var(--muted); margin-top: 1px; display: block;
+  }
+  .fiche-arrow { color: #C0C8D4; font-size: 14px; flex-shrink: 0; }
+
+  /* ── FAB Ajouter plongeur ── */
+  .fab {
+    position: fixed;
+    bottom: calc(24px + var(--safe-bot));
+    right: 20px;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--water);
+    color: white; font-size: 28px;
+    border: none; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(27,108,168,.5);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .fab:active { transform: scale(.93); box-shadow: 0 2px 8px rgba(27,108,168,.4); }
+
+  /* ── Modal ajout plongeur ── */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.5);
+    z-index: 300;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 24px 20px calc(24px + var(--safe-bot));
+    width: 100%; max-width: 600px;
+    animation: slideUp .25s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  .modal h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 17px; font-weight: 700; color: var(--ocean);
+    margin-bottom: 16px;
+  }
+  .modal label {
+    display: block; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: .8px;
+    color: var(--muted); margin-bottom: 4px;
+  }
+  .modal input, .modal select {
+    width: 100%; border: 1.5px solid var(--line);
+    border-radius: 10px; padding: 11px 14px;
+    font-family: 'Inter', sans-serif; font-size: 14px;
+    color: var(--text); background: #F8FAFC;
+    margin-bottom: 14px; outline: none;
+    -webkit-appearance: none;
+  }
+  .modal input:focus, .modal select:focus {
+    border-color: var(--water); background: white;
+  }
+  .modal-btns { display: flex; gap: 10px; margin-top: 4px; }
+  .btn-cancel {
+    flex: 1; padding: 13px; border-radius: 12px;
+    border: 1.5px solid var(--line); background: white;
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--muted); cursor: pointer;
+  }
+  .btn-add {
+    flex: 2; padding: 13px; border-radius: 12px;
+    border: none; background: var(--water);
+    font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 700;
+    color: white; cursor: pointer;
+  }
+
+  /* ── État vide ── */
+  .empty-state {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 56px; display: block; margin-bottom: 16px; }
+  .empty-state h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px; color: var(--ocean); margin-bottom: 8px;
+  }
+  .empty-state p { font-size: 13px; line-height: 1.6; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed; bottom: calc(90px + var(--safe-bot)); left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #1A2535; color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; font-weight: 500;
+    opacity: 0; transition: opacity .3s, transform .3s;
+    pointer-events: none; z-index: 500; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* ── Install banner (Safari) ── */
+  .install-banner {
+    margin: 12px 16px 0;
+    background: #EEF5FF;
+    border: 1.5px solid #1B6CA8;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex; align-items: center; gap: 10px;
+    font-size: 12px; color: #0D3B6E;
+  }
+  .install-banner .ib-icon { font-size: 20px; flex-shrink: 0; }
+  .install-banner .ib-close {
+    margin-left: auto; font-size: 18px; color: #6A7A8A;
+    cursor: pointer; flex-shrink: 0; padding: 4px;
+  }
+  .install-banner.hidden { display: none; }
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <div class="header-icon">🤿</div>
+  <div class="header-text">
+    <h1>Fiches de Suivi FSGT</h1>
+    <p>Gestion des compétences plongée · Club</p>
+  </div>
+</div>
+
+<!-- ── BANNER INSTALL (Safari uniquement) ── -->
+<div class="install-banner" id="installBanner">
+  <span class="ib-icon">📲</span>
+  <span>Pour installer : appuie sur <strong>Partager ↑</strong> puis <strong>« Sur l'écran d'accueil »</strong></span>
+  <span class="ib-close" onclick="dismissBanner()">✕</span>
+</div>
+
+<!-- ── RECHERCHE ── -->
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Rechercher un plongeur…" oninput="filterPlongeurs()">
+  </div>
+</div>
+
+<!-- ── LISTE PLONGEURS ── -->
+<div class="section">
+  <div class="section-title">Plongeurs</div>
+  <div id="plongeursList"></div>
+  <div id="emptyState" class="empty-state" style="display:none">
+    <span class="emoji">🌊</span>
+    <h2>Aucun plongeur</h2>
+    <p>Appuie sur <strong>+</strong> pour ajouter<br>ton premier plongeur.</p>
+  </div>
+</div>
+
+<!-- ── FAB ── -->
+<button class="fab" onclick="openModal()" aria-label="Ajouter un plongeur">+</button>
+
+<!-- ── MODAL AJOUT ── -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2>➕ Ajouter un plongeur</h2>
+    <label>Nom de famille</label>
+    <input type="text" id="inputNom" placeholder="Ex : MARTIN" autocapitalize="characters">
+    <label>Prénom</label>
+    <input type="text" id="inputPrenom" placeholder="Ex : Sophie" autocapitalize="words">
+    <label>Niveau actuel / Fiche à ouvrir</label>
+    <select id="inputNiveau">
+      <option value="">— Sélectionner —</option>
+      <option value="fiche_suivi_PE12.html">PE-12 — Plongeur Encadré 12m</option>
+      <option value="fiche_suivi_PE20_N1.html">PE-20 / N1 — Niveau 1 · CMAS ★</option>
+      <option value="fiche_suivi_OWPA20.html">OW / PA-20 — Open Water · CMAS ★</option>
+      <option value="fiche_suivi_PE40.html">PE-40 — Plongeur Encadré 40m</option>
+      <option value="fiche_suivi_PA40.html">PA-40 — Plongeur Autonome 40m · CMAS ★★</option>
+      <option value="fiche_suivi_PA60.html">PA-60 — Spécialité Profonde</option>
+      <option value="fiche_suivi_GP.html">GP — Guide de Palanquée · CMAS ★★★</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-add" onclick="ajouterPlongeur()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Données fiches disponibles ──────────────────────────────────────────────
+const FICHES = [
+  { file:'fiche_suivi_PE12.html',    label:'PE-12',     desc:'Plongeur Encadré 12m',              color:'#1B6CA8', sub:'encadré' },
+  { file:'fiche_suivi_PE20_N1.html', label:'PE-20 / N1',desc:'Niveau 1 · CMAS ★',                 color:'#1A6B5A', sub:'encadré' },
+  { file:'fiche_suivi_OWPA20.html',  label:'OW / PA-20',desc:'Open Water · Autonome 20m · CMAS ★', color:'#1A6B5A', sub:'autonome' },
+  { file:'fiche_suivi_PE40.html',    label:'PE-40',     desc:'Plongeur Encadré 40m',              color:'#7A4010', sub:'encadré' },
+  { file:'fiche_suivi_PA40.html',    label:'PA-40',     desc:'Plongeur Autonome 40m · CMAS ★★',   color:'#7A4010', sub:'autonome' },
+  { file:'fiche_suivi_PA60.html',    label:'PA-60',     desc:'Spécialité Profonde',               color:'#4A1A7A', sub:'spécialité' },
+  { file:'fiche_suivi_GP.html',      label:'GP',        desc:'Guide de Palanquée · CMAS ★★★',     color:'#2A3A8A', sub:'encadrant' },
+];
+
+// ── Persistance localStorage ─────────────────────────────────────────────────
+const KEY = 'fsgt_plongeurs_v1';
+
+function load() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || []; }
+  catch { return []; }
+}
+
+function save(data) {
+  localStorage.setItem(KEY, JSON.stringify(data));
+}
+
+// ── Initiales pour avatar ────────────────────────────────────────────────────
+function initiales(nom, prenom) {
+  return ((prenom||'?')[0] + (nom||'?')[0]).toUpperCase();
+}
+
+function couleurAvatar(nom) {
+  const colors = ['#0D3B6E','#1B6CA8','#1A6B5A','#7A4010','#4A1A7A','#2A3A8A','#5A2A0E'];
+  let h = 0;
+  for (let c of nom) h = (h * 31 + c.charCodeAt(0)) % colors.length;
+  return colors[h];
+}
+
+// ── Rendu ────────────────────────────────────────────────────────────────────
+let openCardId = null;
+
+function render(filter = '') {
+  const plongeurs = load();
+  const list = document.getElementById('plongeursList');
+  const empty = document.getElementById('emptyState');
+  const q = filter.toLowerCase().trim();
+
+  const filtered = q
+    ? plongeurs.filter(p =>
+        (p.nom + ' ' + p.prenom).toLowerCase().includes(q) ||
+        (p.prenom + ' ' + p.nom).toLowerCase().includes(q)
+      )
+    : plongeurs;
+
+  if (!filtered.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = filtered.map(p => {
+    const isOpen = openCardId === p.id;
+    const fichesHtml = FICHES.map(f => `
+      <a class="fiche-btn" href="${f.file}?nom=${encodeURIComponent(p.nom)}&prenom=${encodeURIComponent(p.prenom)}" onclick="ouvrirFiche(event,'${f.file}','${p.id}')">
+        <span class="fiche-badge" style="background:${f.color}">${f.sub}<br>${f.label}</span>
+        <span class="fiche-info">
+          <span class="fiche-label">${f.label} — ${f.desc}</span>
+        </span>
+        <span class="fiche-arrow">›</span>
+      </a>
+    `).join('');
+
+    return `
+    <div class="plongeur-card ${isOpen ? 'open' : ''}" id="card-${p.id}">
+      <div class="plongeur-header" onclick="toggleCard('${p.id}')">
+        <div class="plongeur-avatar" style="background:${couleurAvatar(p.nom)}">${initiales(p.nom, p.prenom)}</div>
+        <div class="plongeur-info">
+          <div class="plongeur-nom">${p.prenom} ${p.nom}</div>
+          <div class="plongeur-niveau">${p.niveauLabel || '—'} · ${p.club || 'Club non renseigné'}</div>
+        </div>
+        <span class="plongeur-chevron">›</span>
+      </div>
+      <div class="fiches-list">
+        ${fichesHtml}
+        <button onclick="supprimerPlongeur('${p.id}')" style="margin-top:4px;padding:8px;background:none;border:none;color:#C03020;font-size:11px;cursor:pointer;text-align:left;">
+          🗑 Supprimer ${p.prenom} ${p.nom}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id) {
+  openCardId = (openCardId === id) ? null : id;
+  render(document.getElementById('searchInput').value);
+}
+
+function filterPlongeurs() {
+  render(document.getElementById('searchInput').value);
+}
+
+// ── Ouvrir fiche ─────────────────────────────────────────────────────────────
+function ouvrirFiche(e, file, plongeurId) {
+  e.preventDefault();
+  const plongeurs = load();
+  const p = plongeurs.find(x => x.id === plongeurId);
+  if (!p) return;
+  // Stocker le plongeur actif pour que la fiche puisse préremplir
+  sessionStorage.setItem('fsgt_active', JSON.stringify({ nom: p.nom, prenom: p.prenom, club: p.club }));
+  window.location.href = file;
+}
+
+// ── Injection des données dans les fiches ────────────────────────────────────
+// Au chargement de chaque fiche, on vérifie sessionStorage
+function injectPlongeur() {
+  const raw = sessionStorage.getItem('fsgt_active');
+  if (!raw) return;
+  try {
+    const p = JSON.parse(raw);
+    const fill = (id, val) => { const el = document.getElementById(id); if (el && !el.value) el.value = val; };
+    // Tentatives sur les IDs courants des fiches
+    fill('id-nom', p.nom);
+    fill('id-prenom', p.prenom);
+    const clubs = document.querySelectorAll('input[placeholder*="Club"], input[placeholder*="club"]');
+    clubs.forEach(el => { if (!el.value) el.value = p.club || ''; });
+  } catch {}
+}
+
+// ── Modal ────────────────────────────────────────────────────────────────────
+function openModal() {
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('inputNom').focus(), 300);
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.getElementById('inputNom').value = '';
+  document.getElementById('inputPrenom').value = '';
+  document.getElementById('inputNiveau').value = '';
+}
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+function ajouterPlongeur() {
+  const nom    = document.getElementById('inputNom').value.trim().toUpperCase();
+  const prenom = document.getElementById('inputPrenom').value.trim();
+  const niv    = document.getElementById('inputNiveau');
+  const niveau = niv.value;
+  const niveauLabel = niv.options[niv.selectedIndex].text;
+
+  if (!nom || !prenom) { showToast('⚠ Nom et prénom requis'); return; }
+
+  const plongeurs = load();
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  plongeurs.unshift({ id, nom, prenom, niveau, niveauLabel, club: '' });
+  save(plongeurs);
+  closeModal();
+  openCardId = id;
+  render();
+  showToast(`✅ ${prenom} ${nom} ajouté·e`);
+
+  // Ouvrir directement la fiche si un niveau a été sélectionné
+  if (niveau) {
+    setTimeout(() => {
+      sessionStorage.setItem('fsgt_active', JSON.stringify({ nom, prenom, club: '' }));
+      window.location.href = niveau;
+    }, 600);
+  }
+}
+
+// ── Supprimer ────────────────────────────────────────────────────────────────
+function supprimerPlongeur(id) {
+  if (!confirm('Supprimer ce plongeur de la liste ?')) return;
+  const plongeurs = load().filter(p => p.id !== id);
+  save(plongeurs);
+  openCardId = null;
+  render();
+  showToast('🗑 Plongeur supprimé');
+}
+
+// ── Toast ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── Banner install ───────────────────────────────────────────────────────────
+function dismissBanner() {
+  document.getElementById('installBanner').classList.add('hidden');
+  localStorage.setItem('fsgt_banner_dismissed', '1');
+}
+
+function checkBanner() {
+  // Masquer si déjà installée comme PWA ou si bannière déjà fermée
+  const standalone = window.navigator.standalone || window.matchMedia('(display-mode: standalone)').matches;
+  const dismissed  = localStorage.getItem('fsgt_banner_dismissed');
+  if (standalone || dismissed) {
+    document.getElementById('installBanner').classList.add('hidden');
+  }
+}
+
+// ── Clavier ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && document.getElementById('modalOverlay').classList.contains('open')) {
+    ajouterPlongeur();
+  }
+});
+
+// ── Service Worker ───────────────────────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+// ── Init ─────────────────────────────────────────────────────────────────────
+checkBanner();
+render();
+</script>
+
+</body>
+</html>
