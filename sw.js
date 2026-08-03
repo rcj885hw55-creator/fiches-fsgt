@@ -1,21 +1,21 @@
-const CACHE = 'fsgt-v2';
+const CACHE = 'fsgt-v3';
 const FILES = [
   './index.html',
-  './fiche_suivi_PE12.html',
-  './fiche_suivi_PE20_N1.html',
-  './fiche_suivi_PE40.html',
-  './fiche_suivi_OWPA20.html',
-  './fiche_suivi_PA20.html',
-  './fiche_suivi_PA40.html',
-  './fiche_suivi_PA60.html',
-  './fiche_suivi_GP.html',
-  './fiche_suivi_PE12_mobile.html',
-  './fiche_suivi_PE20_mobile.html',
-  './fiche_suivi_PE40_mobile.html',
-  './fiche_suivi_OWPA20_mobile.html',
-  './fiche_suivi_PA40_mobile.html',
-  './fiche_suivi_PA60_mobile.html',
-  './fiche_suivi_GP_mobile.html',
+  './fiche%20suivi%20PE12.html',
+  './fiche%20suivi%20PE20%20N1.html',
+  './fiche%20suivi%20PE40.html',
+  './fiche%20suivi%20OWPA20.html',
+  './fiche%20suivi%20PA20.html',
+  './fiche%20suivi%20PA40.html',
+  './fiche%20suivi%20PA60.html',
+  './fiche%20suivi%20GP.html',
+  './fiche%20suivi%20PE12%20mobile.html',
+  './fiche%20suivi%20PE20%20mobile.html',
+  './fiche%20suivi%20PE40%20mobile.html',
+  './fiche%20suivi%20OWPA20%20mobile.html',
+  './fiche%20suivi%20PA40%20mobile.html',
+  './fiche%20suivi%20PA60%20mobile.html',
+  './fiche%20suivi%20GP%20mobile.html',
 ];
 
 self.addEventListener('install', e => {
