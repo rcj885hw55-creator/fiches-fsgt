@@ -107,7 +107,6 @@
     color:#8A98A8; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:12px;
     display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform .08s; flex-shrink:0; }
   .tg:active { transform:scale(.9); }
-  /* 4 états : 0=gris 1=rouge 2=jaune 3=vert 4=bleu */
   .tg[data-state="1"] { background:#C03020; border-color:#8A1010; color:white; }
   .tg[data-state="2"] { background:#D4A017; border-color:#A07800; color:#3A2800; }
   .tg[data-state="3"] { background:#2A8A4A; border-color:#1A6A3A; color:white; }
@@ -133,12 +132,19 @@
     border:none; border-radius:9px; padding:9px 16px; cursor:pointer; }
   .btn-clear { background:#F3D9D5; color:#8A2A1A; }
   .save-flag { text-align:center; font-size:10.5px; color:#8AAA90; padding:4px 0 0; min-height:14px; }
+
+  .topbar .home-btn { background:rgba(255,255,255,.15); border:1px solid rgba(255,255,255,.3);
+    color:white; font-size:13px; padding:5px 9px; border-radius:8px; cursor:pointer;
+    font-family:'Space Grotesk',sans-serif; font-weight:600; flex-shrink:0;
+    text-decoration:none; display:flex; align-items:center; gap:4px; white-space:nowrap; }
+  .topbar .home-btn:active { background:rgba(255,255,255,.3); }
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="topbar">
+    <a class="home-btn" href="index.html">⬅</a>
     <span class="lvl">PA-60</span>
     <span class="lvl-sub">Spécialité Profonde · 1 page · 6 plongées</span>
   </div>
